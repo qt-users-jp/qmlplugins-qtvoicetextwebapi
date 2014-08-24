@@ -48,14 +48,12 @@ Widget::Private::Private(Widget *parent)
     connect(ui.apiKey, &QLineEdit::textChanged, [&](const QString &text) {
         voiceText.setApiKey(text.toUtf8());
     });
-    ui.apiKey->setText(QStringLiteral("wfez2l7muamw7qih"));
+    ui.apiKey->setFocus();
     connect(ui.text, &QLineEdit::textChanged, [&](const QString &text) {
         voiceText.setText(text);
     });
     connect(ui.text, &QLineEdit::returnPressed, &voiceText, &QVoiceTextWebAPI::play);
-    ui.text->setText("コンパイルが終わりました");
     ui.text->selectAll();
-    ui.text->setFocus();
     connect(ui.speaker, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [&](int index) {
         voiceText.setSpeaker(static_cast<QVoiceTextWebAPI::Speaker>(index));
     });

@@ -61,7 +61,7 @@ ApplicationWindow {
                 id: apiKey
                 Layout.fillWidth: true
                 echoMode: TextInput.Password
-                text: 'wfez2l7muamw7qih'
+                focus: true
             }
             Button {
                 text: qsTr('Register...')
@@ -75,8 +75,6 @@ ApplicationWindow {
         RowLayout {
             TextField {
                 id: text
-                focus: true
-                text: 'おはようございます'
                 placeholderText: 'おはようございます'
                 Layout.fillWidth: true
                 Keys.onReturnPressed: voiceText.play()
