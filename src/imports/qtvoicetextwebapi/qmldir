@@ -1,0 +1,3 @@
+module QtVoiceTextWebAPI
+plugin declarative_qtvoicetextwebapi
+typeinfo plugins.qmltypes

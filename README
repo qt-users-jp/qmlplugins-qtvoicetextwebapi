@@ -1,0 +1,11 @@
+$ git clone git://git.qtquick.me/qmlplugins/qtvoicetextwebapi.git
+$ cd qtvoicetextwebapi
+$ qmake
+$ make
+$ (sudo) make install
+$ ./examples/widget/widget &
+$ ./examples/quick/quick &
+
+
+contributions are always welcome!
+see http://qtquick.me/ for details
