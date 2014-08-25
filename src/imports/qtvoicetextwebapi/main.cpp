@@ -54,7 +54,6 @@ void VoiceTextWebAPI::init()
     QQmlContext *context = QQmlEngine::contextForObject(this);
     QQmlEngine *engine = context->engine();
     setNetworkAccessManager(engine->networkAccessManager());
-    qDebug() << Q_FUNC_INFO << __LINE__ << networkAccessManager();
 }
 
 class QmlVoiceTextWebAPIPlugin : public QQmlExtensionPlugin

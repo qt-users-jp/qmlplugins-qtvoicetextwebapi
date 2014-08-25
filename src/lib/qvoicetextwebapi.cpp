@@ -107,6 +107,13 @@ QVoiceTextWebAPI::Private::Private(QVoiceTextWebAPI *parent)
 #ifdef QVTWA_PRE_DNS_LOOKUP
     QHostInfo::lookupHost(QStringLiteral("api.voicetext.jp"), nullptr, nullptr);
 #endif
+#ifdef QVTWA_PRE_TCP_AND_SSL_HANDSHAKE
+    connect(q, &QVoiceTextWebAPI::networkAccessManagerChanged, [](QNetworkAccessManager *networkAccessManager) {
+        if (networkAccessManager) {
+            networkAccessManager->connectToHostEncrypted(QStringLiteral("api.voicetext.jp"));
+        }
+    });
+#endif
 }
 
 QVoiceTextWebAPI::Private::~Private()
