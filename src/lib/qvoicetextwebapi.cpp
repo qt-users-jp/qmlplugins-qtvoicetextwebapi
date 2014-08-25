@@ -71,7 +71,6 @@ public:
     void parseHeader();
 private:
     QVoiceTextWebAPI *q;
-    QNetworkAccessManager networkAccessManager;
 
 public:
     QByteArray apiKey;
@@ -82,6 +81,7 @@ public:
     int pitch;
     int speed;
     int volume;
+    QNetworkAccessManager *networkAccessManager;
     WavHeader wavHeader;
 };
 
@@ -95,6 +95,7 @@ QVoiceTextWebAPI::Private::Private(QVoiceTextWebAPI *parent)
     , pitch(100)
     , speed(100)
     , volume(100)
+    , networkAccessManager(nullptr)
 {
 }
 
@@ -147,7 +148,9 @@ void QVoiceTextWebAPI::Private::play()
     query.addQueryItem(QStringLiteral("speed"), QString::number(speed));
     query.addQueryItem(QStringLiteral("volume"), QString::number(volume));
 //    qDebug() << query.toString();
-    QNetworkReply *reply = networkAccessManager.post(request, query.toString().toUtf8());
+    if (!networkAccessManager)
+        q->setNetworkAccessManager(new QNetworkAccessManager(this));
+    QNetworkReply *reply = networkAccessManager->post(request, query.toString().toUtf8());
     connect(reply, &QNetworkReply::readyRead, this, &QVoiceTextWebAPI::Private::parseHeader);
 //    connect(reply, &QNetworkReply::downloadProgress, [&](qint64 bytesReceived, qint64 bytesTotal) {
 //        qDebug() << bytesReceived << bytesTotal;
@@ -320,6 +323,18 @@ void QVoiceTextWebAPI::setVolume(int volume)
     if (d->volume == volume) return;
     d->volume = volume;
     emit volumeChanged(volume);
+}
+
+QNetworkAccessManager *QVoiceTextWebAPI::networkAccessManager() const
+{
+    return d->networkAccessManager;
+}
+
+void QVoiceTextWebAPI::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
+{
+    if (d->networkAccessManager == networkAccessManager) return;
+    d->networkAccessManager = networkAccessManager;
+    emit networkAccessManagerChanged(networkAccessManager);
 }
 
 void QVoiceTextWebAPI::play()

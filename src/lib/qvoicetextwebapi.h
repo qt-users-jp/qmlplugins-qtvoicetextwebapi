@@ -30,6 +30,8 @@
 #include "qtvoicetextwebapi_global.h"
 #include <QtCore/QObject>
 
+class QNetworkAccessManager;
+
 class QTVOICETEXT_EXPORT QVoiceTextWebAPI : public QObject
 {
     Q_OBJECT
@@ -43,6 +45,7 @@ class QTVOICETEXT_EXPORT QVoiceTextWebAPI : public QObject
     Q_PROPERTY(int pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
     Q_PROPERTY(int speed READ speed WRITE setSpeed NOTIFY speedChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(QNetworkAccessManager *networkAccessManager READ networkAccessManager WRITE setNetworkAccessManager NOTIFY networkAccessManagerChanged)
 public:
     enum Speaker {
         Show,
@@ -68,6 +71,7 @@ public:
     int pitch() const;
     int speed() const;
     int volume() const;
+    QNetworkAccessManager *networkAccessManager() const;
 
 public slots:
     void setApiKey(const QByteArray &apiKey);
@@ -78,6 +82,7 @@ public slots:
     void setPitch(int pitch);
     void setSpeed(int speed);
     void setVolume(int volume);
+    void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
     void play();
 
@@ -90,6 +95,7 @@ signals:
     void pitchChanged(int pitch);
     void speedChanged(int speed);
     void volumeChanged(int volume);
+    void networkAccessManagerChanged(QNetworkAccessManager *networkAccessManager);
 
 private:
     class Private;

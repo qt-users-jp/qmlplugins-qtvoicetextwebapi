@@ -25,9 +25,35 @@
  */
 
 #include <QtQml/QQmlExtensionPlugin>
+#include <QtQml/QQmlEngine>
+#include <QtQml/QQmlContext>
 #include <QtQml/qqml.h>
 
 #include <QtVoiceTextWebAPI/QVoiceTextWebAPI>
+
+class VoiceTextWebAPI : public QVoiceTextWebAPI
+{
+    Q_OBJECT
+public:
+    VoiceTextWebAPI(QObject *parent = 0);
+
+private slots:
+    void init();
+};
+
+VoiceTextWebAPI::VoiceTextWebAPI(QObject *parent)
+    : QVoiceTextWebAPI(parent)
+{
+    QMetaObject::invokeMethod(this, "init", Qt::QueuedConnection);
+}
+
+void VoiceTextWebAPI::init()
+{
+    QQmlContext *context = QQmlEngine::contextForObject(this);
+    QQmlEngine *engine = context->engine();
+    setNetworkAccessManager(engine->networkAccessManager());
+    qDebug() << Q_FUNC_INFO << __LINE__ << networkAccessManager();
+}
 
 class QmlVoiceTextWebAPIPlugin : public QQmlExtensionPlugin
 {
@@ -38,7 +64,7 @@ public:
     {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("QtVoiceTextWebAPI"));
         // @uri QtVoiceTextWebAPI
-        qmlRegisterType<QVoiceTextWebAPI>(uri, 0, 1, "VoiceTextWebAPI");
+        qmlRegisterType<VoiceTextWebAPI>(uri, 0, 1, "VoiceTextWebAPI");
     }
 };
 
