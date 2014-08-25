@@ -89,6 +89,9 @@ public:
 #ifdef QVTWA_BENCHMARK
     QElapsedTimer timer;
 #endif
+#ifdef QVTWA_REUSE_TLS_SESSION_TICKETS
+    QByteArray sessionTicket;
+#endif
     WavHeader wavHeader;
 };
 
@@ -135,6 +138,14 @@ void QVoiceTextWebAPI::Private::play()
     request.setHeader(QNetworkRequest::ContentTypeHeader, QByteArrayLiteral("application/x-www-form-urlencoded"));
 //    request.setRawHeader("Accept-Encoding", "qcompress");
 
+#ifdef QVTWA_REUSE_TLS_SESSION_TICKETS
+    if (!sessionTicket.isEmpty()) {
+        QSslConfiguration sslConfiguration = request.sslConfiguration();
+        sslConfiguration.setSslOption(QSsl::SslOptionDisableSessionPersistence, false);
+        sslConfiguration.setSessionTicket(sessionTicket);
+        request.setSslConfiguration(sslConfiguration);
+    }
+#endif
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("text"), text);
 
@@ -173,11 +184,14 @@ void QVoiceTextWebAPI::Private::play()
 #endif
     QNetworkReply *reply = networkAccessManager->post(request, query.toString().toUtf8());
     connect(reply, &QNetworkReply::readyRead, this, &QVoiceTextWebAPI::Private::parseHeader);
+    connect(reply, &QNetworkReply::finished, [&, reply]() {
 #ifdef QVTWA_BENCHMARK
-    connect(reply, &QNetworkReply::finished, [&]() {
-    qDebug() << Q_FUNC_INFO << __LINE__ << timer.elapsed();
-    });
+        qDebug() << Q_FUNC_INFO << __LINE__ << timer.elapsed();
 #endif
+#ifdef QVTWA_REUSE_TLS_SESSION_TICKETS
+        sessionTicket = reply->sslConfiguration().sessionTicket();
+#endif
+    });
 //    connect(reply, &QNetworkReply::downloadProgress, [&](qint64 bytesReceived, qint64 bytesTotal) {
 //        qDebug() << bytesReceived << bytesTotal;
 //    });
