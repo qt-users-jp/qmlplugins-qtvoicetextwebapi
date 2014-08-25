@@ -44,7 +44,9 @@ private slots:
 VoiceTextWebAPI::VoiceTextWebAPI(QObject *parent)
     : QVoiceTextWebAPI(parent)
 {
+#ifdef QVTWA_SHARE_QNETAORKACCESSMANAGER
     QMetaObject::invokeMethod(this, "init", Qt::QueuedConnection);
+#endif
 }
 
 void VoiceTextWebAPI::init()

@@ -28,9 +28,13 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QUrlQuery>
+#ifdef QVTWA_BENCHMARK
+#include <QtCore/QElapsedTimer>
+#endif
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QHostInfo>
 #include <QtMultimedia/QAudioOutput>
 
 struct Chunk {
@@ -82,6 +86,9 @@ public:
     int speed;
     int volume;
     QNetworkAccessManager *networkAccessManager;
+#ifdef QVTWA_BENCHMARK
+    QElapsedTimer timer;
+#endif
     WavHeader wavHeader;
 };
 
@@ -97,6 +104,9 @@ QVoiceTextWebAPI::Private::Private(QVoiceTextWebAPI *parent)
     , volume(100)
     , networkAccessManager(nullptr)
 {
+#ifdef QVTWA_PRE_DNS_LOOKUP
+    QHostInfo::lookupHost(QStringLiteral("api.voicetext.jp"), nullptr, nullptr);
+#endif
 }
 
 QVoiceTextWebAPI::Private::~Private()
@@ -150,8 +160,17 @@ void QVoiceTextWebAPI::Private::play()
 //    qDebug() << query.toString();
     if (!networkAccessManager)
         q->setNetworkAccessManager(new QNetworkAccessManager(this));
+#ifdef QVTWA_BENCHMARK
+    qDebug() << Q_FUNC_INFO << __LINE__;
+    timer.start();
+#endif
     QNetworkReply *reply = networkAccessManager->post(request, query.toString().toUtf8());
     connect(reply, &QNetworkReply::readyRead, this, &QVoiceTextWebAPI::Private::parseHeader);
+#ifdef QVTWA_BENCHMARK
+    connect(reply, &QNetworkReply::finished, [&]() {
+    qDebug() << Q_FUNC_INFO << __LINE__ << timer.elapsed();
+    });
+#endif
 //    connect(reply, &QNetworkReply::downloadProgress, [&](qint64 bytesReceived, qint64 bytesTotal) {
 //        qDebug() << bytesReceived << bytesTotal;
 //    });
@@ -159,6 +178,9 @@ void QVoiceTextWebAPI::Private::play()
 
 void QVoiceTextWebAPI::Private::parseHeader()
 {
+#ifdef QVTWA_BENCHMARK
+    qDebug() << Q_FUNC_INFO << __LINE__ << timer.elapsed();
+#endif
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     reply->read(reinterpret_cast<char *>(&wavHeader), sizeof(WavHeader));
     QAudioFormat audioFormat;
