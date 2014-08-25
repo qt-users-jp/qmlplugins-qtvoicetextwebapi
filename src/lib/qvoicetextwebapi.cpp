@@ -146,6 +146,9 @@ void QVoiceTextWebAPI::Private::play()
         request.setSslConfiguration(sslConfiguration);
     }
 #endif
+#ifdef QVTWA_PREFER_CACHE
+    request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+#endif
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("text"), text);
 
